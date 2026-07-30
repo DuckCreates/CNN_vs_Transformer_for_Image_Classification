@@ -26,7 +26,8 @@ python -c "import torch; print(torch.backends.mps.is_available())"
 This should print True
 
 ### Dataset
-This project uses the [HAM10000 dataset](https://www.kaggle.com/datasets/kmader/skin-cancer-mnist-ham10000) from Kaggle. Download it manually and place it in a folder named DataSet/archive/ in the project root
+This project uses the [HAM10000 dataset](https://www.kaggle.com/datasets/kmader/skin-cancer-mnist-ham10000) from Kaggle. The **preprocessing script** will downlaod it automatically if it isn't already present at DataSet/archive/ in the project root. The first time this happens, kagglehub will open a brower tab asking you to log in to kaggle and authorize access - approve it there and the download will continue.
+If you'd rather download it manually, place it in DataSet/archive/ so the structure looks like:
 ```
 project-root/
 ├── 01_preprocess.py
@@ -35,6 +36,10 @@ project-root/
 │       ├── HAM10000_metadata.csv
 │       ├── HAM10000_images_part_1/
 │       └── HAM10000_images_part_2/
+```
+Requires the kagglehub package:
+```bash
+pip install kagglehub
 ```
 
 ### Running the preprocessing script

@@ -2,12 +2,21 @@
 import os                                               # Checks for file paths
 import pandas as pd                                     # For loading the metadata table
 from sklearn.model_selection import train_test_split    # Used to create the Test/Val/Train sets
+# Dowload the dataset
+import kagglehub
+
 
 # Path to the relative dataset (NOTE Data/archive must be in the same folder as scripts)
 dataset_path = "DataSet/archive"
-# Safety Check: Stop script with error message if path can't be found
-assert os.path.exists(dataset_path), f"Could not find {dataset_path}"
-print(f"Using dataset at {dataset_path}")
+
+# If the dataset isn't already downloaded, fetch it from kaggle
+# kagglehub caches it after the first download, os this only runs once.
+if not os.path.exists(dataset_path):
+    print("Dataset not found locally, dowloading from kaggle...")
+    dataset_path = kagglehub.dataset_download("kmader/skin-cancer-mnist-ham10000")
+    print(f"Downloaded to: {dataset_path}")
+else:
+    print(f"Using dataset already at: {dataset_path}")
 
 # Builds the path to the metadata.csv (does it safely using os.path.join())
 metadata_path = os.path.join(dataset_path, "HAM10000_metadata.csv")
