@@ -76,14 +76,61 @@ val     1120
 
 Preprocessing completed
 ```
+### Runing the Data piple script
+```bash
+python 02_dataset.py
+```
+**What it does**
+1. Laods ham10000_processed_metadat.cvs
+builds a class-to-index mapping for the 7 diagnosis categories:
+```
+{'akiec': 0, 'bcc': 1, 'bkl': 2, 'df': 3, 'mel': 4, 'nv': 5, 'vasc': 6}
+```
+3. Defines a custom Pytorch dataset that loads one image and its label at a time from CSV
+defines separate image transforms:
+    * Training: Resize to 224 x 224, random horizontal/vertical flip, random rotation, normalize using ImageNet mean /std
+    * Validation/test: resize to 224x224 and normalize only
+5. Create train_dataset, val_dataset, test_dataset, and their corresponding DataLoaders (batch size 32)
+6. Runs a quick sanity check, loading one sample image and one batch to confirm the pipeline works end to end
+### Expected outcome
+```
+Loaded 10015 records
+split
+train    7002
+val      1532
+test     1481
+Name: count, dtype: int64
+
+Class mapping: {'akiec': 0, 'bcc': 1, 'bkl': 2, 'df': 3, 'mel': 4, 'nv': 5, 'vasc': 6}
+
+Train dataset size: 7002
+Val dataset size: 1532
+Test dataset size: 1481
+
+Sample image shape: torch.Size([3, 224, 224])
+Sample label: 2
+
+Batach of images shape: torch.Size([32, 3, 224, 224])
+Batch of labels shape: torch.Size([32])
+```
+> Note you will see a warning, its okay it can be ignored
+
 
 ### Project structure
 ```
 project-root/
 ├── 01_preprocess.py                    # dataset loading, splitting, class weights
+├── 02_dataset.py                       # Pytorch Dataset/Dataloader pipeline 
 ├── ham10000_processed_metadata.csv     # generated — not tracked in git
 ├── class_weights.csv                   # generated — not tracked in git
 ├── DataSet/                            # dataset — not tracked in git
 ├── .gitignore
 └── README.md
 ```
+### Next steps (not yet implented)
+[X] Build the pytorch dataset/dataloader pipeline
+[ ] Implement the resnet18 baseline (transfer learning)
+[ ] Implement the vit-tiny model (transfer learning)
+[ ] Train and evaluate both modes
+[ ] Run experiments across 25 % 50% 75% 10% of training data
+[ ] Compare results using accuracy, precesion, recall, F1-score, and confusion matrices.
