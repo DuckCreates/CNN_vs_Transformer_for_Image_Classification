@@ -128,9 +128,9 @@ project-root/
 └── README.md
 ```
 ### Next steps (not yet implented)
-[X] Build the pytorch dataset/dataloader pipeline
-[ ] Implement the resnet18 baseline (transfer learning)
-[ ] Implement the vit-tiny model (transfer learning)
-[ ] Train and evaluate both modes
-[ ] Run experiments across 25 % 50% 75% 10% of training data
-[ ] Compare results using accuracy, precesion, recall, F1-score, and confusion matrices.
+- [X] Build the pytorch dataset/dataloader pipeline
+- [ ] Implement the resnet18 baseline (transfer learning)
+- [ ] Implement the vit-tiny model (transfer learning)
+- [ ] Train and evaluate both modes
+- [ ] Run experiments across 25 % 50% 75% 10% of training data
+- [ ] Compare results using accuracy, precesion, recall, F1-score, and confusion matrices.
