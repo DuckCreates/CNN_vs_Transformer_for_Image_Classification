@@ -6,7 +6,7 @@ This project compares a ResNet18 CNN and a ViT-Tiny Vision Transformer for skin 
 
 ### Requirements
 * Python 3.10
-* macOS with Apple Silicon for MPS -accelerated training
+* macOS with Apple Silicon(M4) for MPS -accelerated training
 
 ### Setup
 1. Create and activate a cobda environment:
@@ -57,7 +57,7 @@ python 01_preprocess.py
    * ham10000_processed_metadata.cvs - full metadata with image paths and split assignments
    * class_weights.csv - per-class weights for use in the training loss function
 
-### Expected output
+**Expected outcome**
 ```
 Loaded 10015 image records
 Unique lesions 7470
@@ -92,7 +92,8 @@ defines separate image transforms:
     * Validation/test: resize to 224x224 and normalize only
 5. Create train_dataset, val_dataset, test_dataset, and their corresponding DataLoaders (batch size 32)
 6. Runs a quick sanity check, loading one sample image and one batch to confirm the pipeline works end to end
-### Expected outcome
+
+**Expected outcome**
 ```
 Loaded 10015 records
 split
@@ -115,12 +116,38 @@ Batch of labels shape: torch.Size([32])
 ```
 > Note you will see a warning, its okay it can be ignored
 
+### Running the train resnet18
+
+```bash
+python 03_train_resnet18.py
+```
+
+**What it does**
+1. Loads a pretrained ResNet18 (ImageNet weights) and replaces the final layer to output 7 classes instead of 1000
+2. Sets up a class-weighted CorssEntropyLoss (using class_weights.csv from preprocessing) and AdamW optimizer
+3. Trains with model checkpoint - saves the model to a .pth file whenever validation accuracy improves
+4. Trains with early stopping - stop automatically if validation accuracy doesn improve for 3 consecutive epoches
+
+**Results**
+
+A Fixed random seed (torch.manual_ssed(42)) is used so runs are reproducible and comparable. An earlier unseeded comparison suggested a large gap between learning rates (73.9 vs 79.1%), but this turned out to be mostly random run-to-run variation rather than a real effect, after fixing the seed, the two learning rates perform alsomt identically:
+
+Learning Rate           Best val Accuracy       Best Val loss       Stopped at epoch
+1e-4                        78.1%                   0.65                7
+5e-5                        77.7%                   0.63                9
+
+Given the neglibile difference, lr = 1e-4 is used as the final ResNet18 configuration, since it reached itsbesy result in few epochs. The final model is saved as best_resnet18_Ir1e-4.pth.
+
+Note: Even with a fixed seed, MPS training is not fully deterministic, so minor variations between runs may still occur.
 
 ### Project structure
 ```
 project-root/
 ├── 01_preprocess.py                    # dataset loading, splitting, class weights
 ├── 02_dataset.py                       # Pytorch Dataset/Dataloader pipeline 
+├── 03_train_resnet18.py                # ResNet18 training with checkpointing + early stopping
+├── best_resnet18_Ir1e-4.pth            # Generated - best Renext 18 checkpint, not tracked in git. Also the one used.
+├── best_resnet18_lr5e-5.pth
 ├── ham10000_processed_metadata.csv     # generated — not tracked in git
 ├── class_weights.csv                   # generated — not tracked in git
 ├── DataSet/                            # dataset — not tracked in git
@@ -129,7 +156,7 @@ project-root/
 ```
 ### Next steps (not yet implented)
 - [X] Build the pytorch dataset/dataloader pipeline
-- [ ] Implement the resnet18 baseline (transfer learning)
+- [X] Implement the resnet18 baseline (transfer learning)
 - [ ] Implement the vit-tiny model (transfer learning)
 - [ ] Train and evaluate both modes
 - [ ] Run experiments across 25 % 50% 75% 10% of training data
