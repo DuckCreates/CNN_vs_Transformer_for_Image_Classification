@@ -102,7 +102,7 @@ criterion = nn.CrossEntropyLoss(weight = class_weights_tensor)
 # Optimizer
 # AdamW is a standard, reliable choice for fine-tuning pretrained models.
 # lr (learning rate) of 1e-4 is a reasonable starting point for fine-tuning
-optimizer = optim.AdamW(model.parameters(), lr = 5e-5)
+optimizer = optim.AdamW(model.parameters(), lr = 1e-4)
 
 print("Loss function and optimizer set up.")
 
@@ -153,19 +153,19 @@ for epoch in range(num_epochs):
             _, predicted = torch.max(outputs, 1)
             val_correct += (predicted == labels).sum().item()
             val_total += labels.size(0)
-        val_loss = val_loss / val_total
-        val_acc = val_correct / val_total
+    val_loss = val_loss / val_total
+    val_acc = val_correct / val_total
         
-        # save the model if this is the best accuracy
-        if val_acc > best_val_acc:
-            best_val_acc = val_acc
-            torch.save(model.state_dict(), "best_resnet18_lr5e-5.pth")
-            print(f"-> New best Model saved (val_acc: {val_acc:.4f})")
-            epoch_no_improve = 0
-        else:
-            epoch_no_improve += 1
+    # save the model if this is the best accuracy
+    if val_acc > best_val_acc:
+        best_val_acc = val_acc
+        torch.save(model.state_dict(), "best_resnet18_Ir1e-4.pth")
+        print(f"-> New best Model saved (val_acc: {val_acc:.4f})")
+        epoch_no_improve = 0
+    else:
+        epoch_no_improve += 1
         
-        print(f"Epoch {epoch+1}/{num_epochs} | " f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f} | " f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}")
-        if epoch_no_improve >= patience:
-            print(f"\nEarly Stopping trigger: epoch {epoch+1} (no improvement {patience} to epoch).")
-            break
+    print(f"Epoch {epoch+1}/{num_epochs} | " f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f} | " f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}")
+    if epoch_no_improve >= patience:
+        print(f"\nEarly Stopping trigger: epoch {epoch+1} (no improvement {patience} to epoch).")
+        break

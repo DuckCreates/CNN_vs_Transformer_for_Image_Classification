@@ -134,11 +134,24 @@ A Fixed random seed (torch.manual_ssed(42)) is used so runs are reproducible and
 
 Learning Rate           Best val Accuracy       Best Val loss       Stopped at epoch
 1e-4                        78.1%                   0.65                7
-5e-5                        77.7%                   0.63                9
+5e-5                        77.7%                   0.67                9
 
 Given the neglibile difference, lr = 1e-4 is used as the final ResNet18 configuration, since it reached itsbesy result in few epochs. The final model is saved as best_resnet18_Ir1e-4.pth.
 
 Note: Even with a fixed seed, MPS training is not fully deterministic, so minor variations between runs may still occur.
+
+### Running the train ViT-Tiny
+
+```bash
+python 04_train_vit_tiny.py
+```
+
+**What it does**
+
+
+**Results**
+
+
 
 ### Project structure
 ```
