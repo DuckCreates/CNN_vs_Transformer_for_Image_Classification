@@ -131,11 +131,11 @@ python 03_train_resnet18.py
 **Results**
 
 A Fixed random seed (torch.manual_ssed(42)) is used so runs are reproducible and comparable. An earlier unseeded comparison suggested a large gap between learning rates (73.9 vs 79.1%), but this turned out to be mostly random run-to-run variation rather than a real effect, after fixing the seed, the two learning rates perform alsomt identically:
-
+```
 Learning Rate           Best val Accuracy       Best Val loss       Stopped at epoch
 1e-4                        78.1%                   0.65                7
 5e-5                        77.7%                   0.67                9
-
+```
 Given the neglibile difference, lr = 1e-4 is used as the final ResNet18 configuration, since it reached itsbesy result in few epochs. The final model is saved as best_resnet18_Ir1e-4.pth.
 
 Note: Even with a fixed seed, MPS training is not fully deterministic, so minor variations between runs may still occur.
@@ -148,9 +148,18 @@ python 04_train_vit_tiny.py
 
 **What it does**
 
+Sample pipeline as 03_train_resnet18.py (class-weighted loss checkpointing, early stopping) but uses a pretrained ViT-Tiny model (timm's vit_tiny_patch16_224) instead of ResNet18, with a lower learning rate (3e-5) since transformers are more sensitive to aggressive updates during fine-tuning.
+
+**note on hardware:** Vit_Tiny training triggered a RuntimeError on the MPS backend, caused by an internal reshape operation in the attention mechabism that isn't fully sypported by the current PyTorch/timm/MPS combination. Training runs correctly on CPU instead - this project use CPU for ViT-Tiny training as a result
+
 
 **Results**
-
+```
+Model               Best Val Accuracy       Best val Loss           Stopped at epoch
+RenNet18(lr = 1e4)  78.1%                   0.65                    7
+ViT-Tiny(lr = 3e-5) 80.1%                   0.69                    19
+```
+ViT-Tiny outperformss ResNet19 by roughly 2 percentage points ob validation accuracy in this initial comparsion, though it requireds subsatantially more epochs and CPU time, to reach its best result. FInal model saved as best_vit_tiny_lr3e-4.pth
 
 
 ### Project structure
@@ -159,8 +168,10 @@ project-root/
 ├── 01_preprocess.py                    # dataset loading, splitting, class weights
 ├── 02_dataset.py                       # Pytorch Dataset/Dataloader pipeline 
 ├── 03_train_resnet18.py                # ResNet18 training with checkpointing + early stopping
+├── 04_train_vit_tiny.py                # Vit-Tiny trainin
 ├── best_resnet18_Ir1e-4.pth            # Generated - best Renext 18 checkpint, not tracked in git. Also the one used.
 ├── best_resnet18_lr5e-5.pth
+├── best_vit_tiny_lr3e-4.pth            # generated - best Vit-tiny
 ├── ham10000_processed_metadata.csv     # generated — not tracked in git
 ├── class_weights.csv                   # generated — not tracked in git
 ├── DataSet/                            # dataset — not tracked in git
@@ -170,7 +181,6 @@ project-root/
 ### Next steps (not yet implented)
 - [X] Build the pytorch dataset/dataloader pipeline
 - [X] Implement the resnet18 baseline (transfer learning)
-- [ ] Implement the vit-tiny model (transfer learning)
-- [ ] Train and evaluate both modes
+- [X] Implement the vit-tiny model (transfer learning)
 - [ ] Run experiments across 25 % 50% 75% 10% of training data
 - [ ] Compare results using accuracy, precesion, recall, F1-score, and confusion matrices.
