@@ -161,6 +161,14 @@ ViT-Tiny(lr = 3e-5) 80.1%                   0.69                    19
 ```
 ViT-Tiny outperformss ResNet19 by roughly 2 percentage points ob validation accuracy in this initial comparsion, though it requireds subsatantially more epochs and CPU time, to reach its best result. FInal model saved as best_vit_tiny_lr3e-4.pth
 
+```
+Model               Best Val Accuracy       Best val Loss           Stopped at epoch
+ViT-Tiny(lr = 3e-5) 80.1%                   0.69                    19
+ViT-Tiny(lr = 1e-5) 75.7%                   0.70                    9
+```
+
+Unlike the ResNet18 learning rate comparison (where the difference turned out to be mostly noise), the gap is meaningful: lr=1e-5 converged too slowly and tiggered early stopping before fully learning while lr=3e-5 had room to keep improving up to epoch 19. lr=3e-5 is used as the final ViT-Tiny configuration. Final model saved as best_vit_tiny_lr3e-4.pth.
+
 
 ### Project structure
 ```
@@ -172,6 +180,7 @@ project-root/
 ├── best_resnet18_Ir1e-4.pth            # Generated - best Renext 18 checkpint, not tracked in git. Also the one used.
 ├── best_resnet18_lr5e-5.pth
 ├── best_vit_tiny_lr3e-4.pth            # generated - best Vit-tiny
+├── best_vit_tiny_lr1e-5.pth            # generated - best Vit-tiny
 ├── ham10000_processed_metadata.csv     # generated — not tracked in git
 ├── class_weights.csv                   # generated — not tracked in git
 ├── DataSet/                            # dataset — not tracked in git
