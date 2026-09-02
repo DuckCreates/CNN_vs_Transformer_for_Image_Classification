@@ -187,9 +187,49 @@ project-root/
 ├── .gitignore
 └── README.md
 ```
+
+### Dtataset size ablation
+To investiate RQ2 (how the CNN and ViT performance gap changes with less training data), both models are retrained using 25%, 50%, 75% and 100% of the training set. Subest are sampled-per class (stratifled) with a fixed seed, so class propritons are presrved at every size.
+
+**ResNet18 results**
+```
+Training data           Val accuracy
+25%                     75.8%
+50%                     74.0%
+75%                     76.4%
+100%                    78.1%
+```
+ResNet18 shos relatively small variation across dataste sizes (74-78&), with the performance at 25% already fairy close to the full-data results. This suggests the model's ImageNet pretraining is doing much of the heavly lifing, with fine-tuning data mainly providing incremental gains rather than being essential to reach reasonable performance. Note the 50% results is slightlt lower than 25%, with the dataset sizes this close together, some of this variation likely reflects with specific images were samples into each subest not just how many.
+
+**ViT-Tiny results**
+```
+Training data           Val accuracy
+25%                     67.6%
+50%                     73.4%
+75%                     79.1%
+100%                    80.1%
+```
+
+Unlike ResNet18, ViT-Tiny shows a clear, steadily increasing trend as training data increases - substantially larger drop at 25% (67.6% vs ResNet18's 75.8%) that steadily closes as more data becomes available.
+
+**Combined comparison**
+```
+Training data           ResNet18        ViT-Tiny        Gap(ViT- ResNet18)
+25%                     75.8%           67.6%           -8.2
+50%                     74.0%           73.4%           -0.6
+75%                     76.4%           79.1%           +2.7
+100%                    78.1%           80.1%           +2.0
+```
+
+This is the cnetral finding of the project, directly addressing both research question.
+- RQ1 (Does ViT-Tiny outperform ResNet18?): yes, but only once enough training data is available - ViT only overtakes ResNet18 once training data reaches roughly 75% of the full set
+- RQ2 (how does the performance gap change with training data size?): the gap reverses direction as data increases. WIth limited data (25%), ResNet18's ImageNet pretraining and built-in spatial inductive bias give it a clear advantage. As more data becomes available, ViT-Tiny's self-attention mechanism is able to learn effective representations and overtakes ResNet18, consistent with the data-efficiency concerns raised in the literature review
+
+This supports the conclusion that Vision Transformer are a data-hungrier architecture: they need a larger training set to reach CNN-leve performance on this task, but are not necessarily the better choice when training data is scarce.
+
 ### Next steps (not yet implented)
 - [X] Build the pytorch dataset/dataloader pipeline
 - [X] Implement the resnet18 baseline (transfer learning)
 - [X] Implement the vit-tiny model (transfer learning)
-- [ ] Run experiments across 25 % 50% 75% 10% of training data
+- [X] Run experiments across 25 % 50% 75% 10% of training data
 - [ ] Compare results using accuracy, precesion, recall, F1-score, and confusion matrices.

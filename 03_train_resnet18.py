@@ -68,7 +68,21 @@ eval_transform = transforms.Compose([
 
 # Datasets and dataloaders
 batch_size = 32
-train_dataset = HAM10000Dataset(df[df["split"] == "train"], transform = train_transform)
+# train_dataset = HAM10000Dataset(df[df["split"] == "train"], transform = train_transform)
+
+# Subest the training data for dataset-szie ablation ---
+# Change this value to 0.25, 0.5, 0.75 or 1.0 for each experiment run
+train_faction = 0.75
+if train_faction < 1.0:
+# saample a fractio of the training data, stratified by class so the class
+# distribution stays representaive enen in smaller subsets
+    train_df_subset = df[df["split"] == "train"].groupby("dx", group_keys = False).apply(lambda x: x.sample(frac=train_faction, random_state = 42))
+    print(f"Using {train_faction*100:.0f}% of training data: {len(train_df_subset)} images")
+else:
+    train_df_subset = df[df["split"] == "train"]
+    print(f"Using 100% of training data: {len(train_df_subset)} images")
+train_dataset = HAM10000Dataset(train_df_subset, transform=train_transform)
+
 val_dataset = HAM10000Dataset(df[df["split"] == "val"], transform = eval_transform)
 train_loader = DataLoader(train_dataset,batch_size = batch_size, shuffle = True)
 val_loader = DataLoader(val_dataset, batch_size = batch_size, shuffle = False)
@@ -159,7 +173,7 @@ for epoch in range(num_epochs):
     # save the model if this is the best accuracy
     if val_acc > best_val_acc:
         best_val_acc = val_acc
-        torch.save(model.state_dict(), "best_resnet18_Ir1e-4.pth")
+        torch.save(model.state_dict(), "best_resnet18_frac75.pth")
         print(f"-> New best Model saved (val_acc: {val_acc:.4f})")
         epoch_no_improve = 0
     else:
