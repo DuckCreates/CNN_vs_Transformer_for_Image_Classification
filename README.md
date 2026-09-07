@@ -1,5 +1,4 @@
 # Skin lesion Classification: CNN vs Vision Transformer
-> **Status: Draft - work in progress**. This README currently only covers setup and the preprocessing stage. It will be updated as training and evaluation scripts are added.
 
 ### Overview
 This project compares a ResNet18 CNN and a ViT-Tiny Vision Transformer for skin lesion classification using the HAM10000 dermoscopic image dataset.
@@ -187,8 +186,10 @@ project-root/
 ├── .gitignore
 └── README.md
 ```
+*Note all the different training dataset size paths are also saved jusy not tracked in git*
 
-### Dtataset size ablation
+
+### Dataset size ablation
 To investiate RQ2 (how the CNN and ViT performance gap changes with less training data), both models are retrained using 25%, 50%, 75% and 100% of the training set. Subest are sampled-per class (stratifled) with a fixed seed, so class propritons are presrved at every size.
 
 **ResNet18 results**
@@ -227,9 +228,43 @@ This is the cnetral finding of the project, directly addressing both research qu
 
 This supports the conclusion that Vision Transformer are a data-hungrier architecture: they need a larger training set to reach CNN-leve performance on this task, but are not necessarily the better choice when training data is scarce.
 
+### Test Set evaluation
+Both final models (trained on 100% of the training data) are evaluated once on the heldout test set (1481 images, never seen during training or hyperparameter tuning) via 05_evaluate.py.
+
+**Overall test performance**
+```
+Model       Test Accuracy   Macro F1    Macro Prescision    Macro Recall
+ResNet18    79.2%           0.644       0.603               0.721
+ViT-Tiny    80.7%           0.689       0.667               0.721
+```
+ViT-tiny outperforms ResNet18 on both accuracy and Macro-averafed F1 on the test set. Notably, the macro F1 gap is proprtionally larger than the accuracy gap indicating ViT-Tiny handles the minority classes meaningfully better, not just the dominant nv class - this is exactly the kind of difference that raw accuracy alone would have hidden, justifying the macro-averaged metrics committed to in the Design section
+
+**Per-Class F1-score**
+```
+Class       Support     ResNet18F1      ViT-Tiny f1
+akiec       46          0.500           0.552
+bcc         71          0.675           0.730
+bk1         168         0.652           0.616
+df          20          0.600           0.649
+mel         165         0.555           0.579
+nv          992         0.900           0.909
+vasc        19          0.621           0.791
+```
+ViT-Tiny wins on 5 of 7 classes: ResNet18 is slightly better on bk1. The largest gap is on vasc, the rarest class (19 test images), where ViT-Tiny's F1 is notably higher (0.79 vs 0.62), driven mainly by better precision (few false positives).
+
+**Confusion Matrices**
+
+![Confusion Matrices for both Cnn And VIT](/CNN_vs_Transformer_for_Image_Classification/confusion_matrices.png)
+
+The most clinically important error pattern in both models is confusion between mel(melanoma) and nv(benign nevi) - ResNet18 misclassifies 28 true melanoma cases as nv, and ViT-Tiny misclassifies 27. Given that melanoma is the most dangerous class in this dataset, this is a notable limitation for both models, and worth highligihting in the discussion: a real screening tool would need substantially better melanoma recall before being clinically usable, regardless of which architecture is used.
+
+
 ### Next steps (not yet implented)
 - [X] Build the pytorch dataset/dataloader pipeline
 - [X] Implement the resnet18 baseline (transfer learning)
 - [X] Implement the vit-tiny model (transfer learning)
 - [X] Run experiments across 25 % 50% 75% 10% of training data
-- [ ] Compare results using accuracy, precesion, recall, F1-score, and confusion matrices.
+- [X] Compare results using accuracy, precesion, recall, F1-score, and confusion matrices.
+
+
+python 05_evaluate.py
