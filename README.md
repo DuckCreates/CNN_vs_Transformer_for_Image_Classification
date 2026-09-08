@@ -254,9 +254,14 @@ ViT-Tiny wins on 5 of 7 classes: ResNet18 is slightly better on bk1. The largest
 
 **Confusion Matrices**
 
-![Confusion Matrices for both Cnn And VIT](/CNN_vs_Transformer_for_Image_Classification/confusion_matrices.png)
+![Confusion Matrices for both Cnn And VIT](CNN_vs_Transformer_for_Image_Classification/confusion_matrices.png)
 
 The most clinically important error pattern in both models is confusion between mel(melanoma) and nv(benign nevi) - ResNet18 misclassifies 28 true melanoma cases as nv, and ViT-Tiny misclassifies 27. Given that melanoma is the most dangerous class in this dataset, this is a notable limitation for both models, and worth highligihting in the discussion: a real screening tool would need substantially better melanoma recall before being clinically usable, regardless of which architecture is used.
+
+### Reproducibility
+A fixed random seed(torch.manual_seed(42)) is used in both training scripts (*03_train_resnet.py* and *04_train_vit.py*) so that data splitting, model initialization, and training should be consistent across runs. *01_preprocess.py* is fully reproducible, since its train/validation/test split and class weights use a fixed random_state = 42 throughout.
+
+I've tried my best to make sure anyone re-running this project gets the same results I did. That said, PyTorch's MPS backend has some known non-determinism that isn't fully controllable even with a fixed seed, so re-running the training script may produce results that are very close to, but not byte-for-byte identical to, the number reported in this README.
 
 
 ### Next steps (not yet implented)
@@ -265,6 +270,4 @@ The most clinically important error pattern in both models is confusion between 
 - [X] Implement the vit-tiny model (transfer learning)
 - [X] Run experiments across 25 % 50% 75% 10% of training data
 - [X] Compare results using accuracy, precesion, recall, F1-score, and confusion matrices.
-
-
-python 05_evaluate.py
+- [ ] Final Report
