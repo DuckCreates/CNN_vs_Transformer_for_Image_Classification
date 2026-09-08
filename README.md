@@ -254,7 +254,7 @@ ViT-Tiny wins on 5 of 7 classes: ResNet18 is slightly better on bk1. The largest
 
 **Confusion Matrices**
 
-![Confusion Matrices for both Cnn And VIT](CNN_vs_Transformer_for_Image_Classification/confusion_matrices.png)
+![Confusion Matrices for both Cnn And VIT](confusion_matrices.png)
 
 The most clinically important error pattern in both models is confusion between mel(melanoma) and nv(benign nevi) - ResNet18 misclassifies 28 true melanoma cases as nv, and ViT-Tiny misclassifies 27. Given that melanoma is the most dangerous class in this dataset, this is a notable limitation for both models, and worth highligihting in the discussion: a real screening tool would need substantially better melanoma recall before being clinically usable, regardless of which architecture is used.
 
