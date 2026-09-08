@@ -245,3 +245,4 @@ logs/
 
 mkdir -p DataSet/
 touch DataSet/.gitkeep
+.DS_Store
