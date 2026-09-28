@@ -8,6 +8,7 @@ from torchvision import models                          # pretrained models
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from PIL import Image
+import time
 #Same Seed
 torch.manual_seed(42)
 
@@ -72,7 +73,7 @@ batch_size = 32
 
 # Subest the training data for dataset-szie ablation ---
 # Change this value to 0.25, 0.5, 0.75 or 1.0 for each experiment run
-train_faction = 0.75
+train_faction = 1.0
 if train_faction < 1.0:
 # saample a fractio of the training data, stratified by class so the class
 # distribution stays representaive enen in smaller subsets
@@ -128,6 +129,7 @@ best_val_acc = 0.0 # Will update with the best val - track the model
 patience = 3
 epoch_no_improve = 0
 
+start_time = time.time()
 for epoch in range(num_epochs):
     # Training phase
     model.train() # tells the model its in training mode (affects layer like dropout/batchnorm)
@@ -173,7 +175,7 @@ for epoch in range(num_epochs):
     # save the model if this is the best accuracy
     if val_acc > best_val_acc:
         best_val_acc = val_acc
-        torch.save(model.state_dict(), "best_resnet18_frac75.pth")
+        torch.save(model.state_dict(), "best_resnet18_Ir1e-4.pth")
         print(f"-> New best Model saved (val_acc: {val_acc:.4f})")
         epoch_no_improve = 0
     else:
@@ -183,3 +185,6 @@ for epoch in range(num_epochs):
     if epoch_no_improve >= patience:
         print(f"\nEarly Stopping trigger: epoch {epoch+1} (no improvement {patience} to epoch).")
         break
+end_time = time.time()
+elapsed_minutes = (end_time - start_time) / 60
+print(f"\nTotal training time: {elapsed_minutes:.1f} minutes")
