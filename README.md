@@ -188,9 +188,25 @@ project-root/
 ```
 *Note all the different training dataset size paths are also saved jusy not tracked in git*
 
+### Runing the evaluation
+```bash
+python 05_evaluate.py
+```
+
+**What it does**
+1. Loads the final checkpoints for both models('best_resent18_lr1e-4.pth' and 'best_vit_tiny_lr3e-4.pth') - the 100% -training data, final learning rate configurations reported as the main results in this README and in the report
+2. Loads the held-out test set (1,481 imahes, never used during training or hyperparameter tuning)
+3. Runs both models on the test set and computes:
+    - A full classification report (precision, recall, F1-score per class, plus macro-averaged totals) for each model
+    - Confusion matrices for both models, saved to 'confusion_matrices.png'
+    - McNeamr's test, comparing the two models' paired prediction on the test set to check whether the accuracy difference is statistically significant
+    
+**Expected outcome:** the classification reports, confusion matrix plot, and McNemar's test results shown in the "Test Set Evaluation" and "Reproducibility" section below.
 
 ### Dataset size ablation
 To investiate RQ2 (how the CNN and ViT performance gap changes with less training data), both models are retrained using 25%, 50%, 75% and 100% of the training set. Subest are sampled-per class (stratifled) with a fixed seed, so class propritons are presrved at every size.
+
+**Reproducing these results:** `03_train_resnet18.py` and `04_train_vit_tiny.py` do not take a comand-line argument for dataset size. To reproduce a specific size, manually edit the `train_fraction` variable near the top of the script (set to `0.25`, `0.5`, `0.75`, or `1.0`), and update the checkpoint filename in the `torch.save(...)` line accordingly (e.g., `best_resnet18_frac25.pth`) so each run's results insnt' overwritten by the next. Re-run the script once per value  to preocue all four data points below.
 
 **ResNet18 results**
 ```
@@ -264,10 +280,21 @@ A fixed random seed(torch.manual_seed(42)) is used in both training scripts (*03
 I've tried my best to make sure anyone re-running this project gets the same results I did. That said, PyTorch's MPS backend has some known non-determinism that isn't fully controllable even with a fixed seed, so re-running the training script may produce results that are very close to, but not byte-for-byte identical to, the number reported in this README.
 
 
-### Next steps (not yet implented)
-- [X] Build the pytorch dataset/dataloader pipeline
-- [X] Implement the resnet18 baseline (transfer learning)
-- [X] Implement the vit-tiny model (transfer learning)
-- [X] Run experiments across 25 % 50% 75% 10% of training data
-- [X] Compare results using accuracy, precesion, recall, F1-score, and confusion matrices.
-- [ ] Final Report
+### McNemar Test
+```
+McNemar's Test Contingency Table:
+Both correct: 1057
+ResNet18 correct, ViT-Tiny wrong: 116
+ViT-Tiny correct, ResNet18 wrong: 138
+Both wrong: 170
+
+McNemar's test statistic: 1.7362
+p-value: 0.1876
+Result: no statistically significant difference between models (p >= 0.05)
+
+
+ResNet18 total parameters: 11,180,103
+ResNet18 trainable parameters: 11,180,103
+ViT-Tiny total parameters: 5,525,767
+ViT-Tiny trainable parameters: 5,525,767
+```
