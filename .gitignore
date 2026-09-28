@@ -230,8 +230,6 @@ ham10000_processed_metadata.csv
 class_weights.csv
 
 # Model checkpoints and trained weights (large binary files)
-*.pth
-*.pt
 checkpoints/
 saved_models/
 
@@ -243,6 +241,3 @@ logs/
 # macOS system files
 .DS_Store
 
-mkdir -p DataSet/
-touch DataSet/.gitkeep
-.DS_Store

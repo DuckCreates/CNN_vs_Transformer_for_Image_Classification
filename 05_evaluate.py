@@ -7,6 +7,9 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import models, transforms
 from PIL import Image
 
+from statsmodels.stats.contingency_tables import mcnemar
+import numpy as np
+
 # The comparsion
 from sklearn.metrics import classification_report, confusion_matrix
 import matplotlib.pyplot as plt
@@ -129,3 +132,37 @@ plt.savefig("confusion_matrices.png", dpi=150)
 plt.show()
 print("\nConfusion Matrices save to cinfusion_matrices.png")
 
+# McNemars test
+resnet_correct = np.array(resnet_preds) == np.array(resnet_labels)
+vit_correct = np.array(vit_preds) == np.array(vit_labels)
+# 2 x2 contingency table
+both_correct = np.sum(resnet_correct & vit_correct)
+resnet_only = np.sum(resnet_correct & ~vit_correct)
+vit_only = np.sum(~resnet_correct & vit_correct)
+both_wrong = np.sum(~resnet_correct & ~vit_correct)
+
+contingency_table = [[both_correct, resnet_only], [vit_only, both_wrong]]
+print("\nMcNemar's Test Contingency Table:")
+print(f"Both correct: {both_correct}")
+print(f"ResNet18 correct, ViT-Tiny wrong: {resnet_only}")
+print(f"ViT-Tiny correct, ResNet18 wrong: {vit_only}")
+print(f"Both wrong: {both_wrong}")
+
+result = mcnemar(contingency_table, exact= False, correction = True)
+print(f"\nMcNemar's test statistic: {result.statistic:.4f}")
+print(f"p-value: {result.pvalue:.4f}")
+
+if result.pvalue < 0.05:
+    print("Result: statistically significant difference between models (p < 0.05)")
+else:
+    print("Result: no statistically significant difference between models (p >= 0.05)")
+
+resnet_params = sum(p.numel() for p in resnet_model.parameters())
+vit_params = sum(p.numel() for p in vit_model.parameters())
+resnet_trainable = sum(p.numel() for p in resnet_model.parameters() if p.requires_grad)
+vit_trainable = sum(p.numel() for p in vit_model.parameters() if p.requires_grad)
+
+print(f"\nResNet18 total parameters: {resnet_params:,}")
+print(f"ResNet18 trainable parameters: {resnet_trainable:,}")
+print(f"ViT-Tiny total parameters: {vit_params:,}")
+print(f"ViT-Tiny trainable parameters: {vit_trainable:,}")
